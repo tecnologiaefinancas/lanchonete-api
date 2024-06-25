@@ -1,0 +1,54 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.springframework.boot' version '3.3.1'
+    id 'io.spring.dependency-management' version '1.1.5'
+}
+
+group = 'com.lanchonete.tech.adapters'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation(project(":core:domain"))
+    implementation(project(":core:application"))
+    implementation(project(":core:ports"))
+    implementation 'org.springframework.boot:spring-boot-starter'
+
+    implementation('org.springdoc:springdoc-openapi-webmvc-core:1.6.8')
+    implementation('org.springdoc:springdoc-openapi-ui:1.6.8')
+
+    implementation ('org.springframework.boot:spring-boot-starter-web') {
+        exclude module: 'spring-boot-starter-tomcat'
+    }
+
+    implementation 'org.postgresql:postgresql'
+
+    implementation 'org.springframework.boot:spring-boot-starter-undertow'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.flywaydb:flyway-core:9.19.0'
+
+    implementation('com.fasterxml.jackson.module:jackson-module-afterburner')
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation('org.testcontainers:testcontainers:1.17.2')
+    testImplementation "org.testcontainers:postgresql:1.19.3"
+    testImplementation('org.testcontainers:junit-jupiter:1.17.2')
+    testImplementation 'org.flywaydb:flyway-core:9.19.0'
+
+    testRuntimeOnly('com.h2database:h2')
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

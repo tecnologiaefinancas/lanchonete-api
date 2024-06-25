@@ -1,0 +1,10 @@
+rootProject.name = 'lanchonete-fiap-challenge'
+include 'core'
+include 'core:domain'
+findProject(':core:domain')?.name = 'domain'
+include 'core:application'
+findProject(':core:application')?.name = 'application'
+include 'core:ports'
+findProject(':core:ports')?.name = 'ports'
+include 'adapters'
+

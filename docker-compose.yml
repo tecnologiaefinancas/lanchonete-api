@@ -1,0 +1,12 @@
+version: '3.7'
+
+services:
+  db:
+    container_name: adm_videos_postgres
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: adm_videos
+    ports:
+      - 5432:5432
