@@ -1,0 +1,23 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  defer-datasource-initialization: true
+  show-sql: false
+  properties:
+    hibernate:
+      format_sql: true
+  sql:
+    init:
+      mode: always
+mysql:
+  username: root
+  password: 123456
+  schema: category
+  url: localhost:3306
+server:
+  port: 8080
+  undertow:
+    threads:
+      worker: 10
+      io: 2

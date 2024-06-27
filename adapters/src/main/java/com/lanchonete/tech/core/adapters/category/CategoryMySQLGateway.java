@@ -1,0 +1,97 @@
+package com.lanchonete.tech.core.adapters.category;
+
+import com.lanchonete.tech.core.adapters.category.persistence.CategoryJpaEntity;
+import com.lanchonete.tech.core.adapters.category.persistence.CategoryRepository;
+import com.lanchonete.tech.core.domain.category.Category;
+import com.lanchonete.tech.core.domain.category.CategoryGateway;
+import com.lanchonete.tech.core.domain.category.CategoryID;
+import com.lanchonete.tech.core.domain.pagination.Pagination;
+import com.lanchonete.tech.core.domain.pagination.SearchQuery;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static com.lanchonete.tech.core.adapters.utils.SpecificationUtils.like;
+
+
+@Service
+public class CategoryMySQLGateway implements CategoryGateway {
+
+    private final CategoryRepository categoryRepository;
+
+    public CategoryMySQLGateway(final CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
+
+    @Override
+    public Category create(final Category aCategory) {
+        return save(aCategory);
+    }
+
+    @Override
+    public void deleteById(CategoryID anId) {
+        final String anIdValue = anId.getValue();
+        if(categoryRepository.existsById(anIdValue)) {
+            categoryRepository.deleteById(anIdValue);
+        }
+
+    }
+
+    @Override
+    public Optional<Category> findById(final CategoryID anId) {
+        return categoryRepository.findById(anId.getValue())
+                .map(CategoryJpaEntity::toAggregate);
+    }
+
+    @Override
+    public Category update(final Category aCategory) {
+        return save(aCategory);
+    }
+
+    @Override
+    public Pagination<Category> findAll(final SearchQuery aQuery) {
+        // Paginação
+        final var page = PageRequest.of(
+                aQuery.page(),
+                aQuery.perPage(),
+                Sort.by(Sort.Direction.fromString(aQuery.direction()), aQuery.sort())
+        );
+
+        // Busca dinamica pelo criterio terms (name ou description)
+        final var specifications = Optional.ofNullable(aQuery.terms())
+                .filter(str -> !str.isBlank())
+                .map(this::assembleSpecification)
+                .orElse(null);
+
+        final var pageResult =
+                this.categoryRepository.findAll(Specification.where(specifications), page);
+
+        return new Pagination<>(
+                pageResult.getNumber(),
+                pageResult.getSize(),
+                pageResult.getTotalElements(),
+                pageResult.map(CategoryJpaEntity::toAggregate).toList()
+        );
+    }
+
+    @Override
+    public List<CategoryID> existsByIds(Iterable<CategoryID> ids) {
+        //TODO: Implementar quando chegar na camada de infraestrutura de Genre
+        return Collections.emptyList();
+    }
+
+    private Category save(final Category aCategory) {
+        return this.categoryRepository.save(CategoryJpaEntity.from(aCategory)).toAggregate();
+    }
+
+    private Specification<CategoryJpaEntity> assembleSpecification(final String str) {
+        final Specification<CategoryJpaEntity> nameLike = like("name", str);
+        final Specification<CategoryJpaEntity> descriptionLike =  like("description", str);
+        return nameLike.or(descriptionLike);
+    }
+}

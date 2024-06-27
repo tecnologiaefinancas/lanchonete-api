@@ -1,0 +1,9 @@
+rootProject.name = 'fiap-tech-challenge'
+include 'core'
+include 'domain'
+include 'core:domain'
+findProject(':core:domain')?.name = 'domain'
+include 'core:application'
+findProject(':core:application')?.name = 'application'
+include 'adapters'
+
